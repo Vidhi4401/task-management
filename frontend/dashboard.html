@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow – Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+  <div class="dash-layout">
+
+    <!-- ── Sidebar ────────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">Task<span>Flow</span></div>
+
+      <nav>
+        <div class="nav-item" data-section="tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+          My Tasks
+        </div>
+        <div class="nav-item" data-section="users" id="nav-users" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          Manage Users
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <div class="avatar" id="sidebar-avatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-name">User</div>
+            <span class="user-role" id="sidebar-role">user</span>
+          </div>
+          <button class="logout-btn" id="logout-btn" title="Logout">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main content ───────────────────────────────────────────── -->
+    <main class="main-content">
+
+      <!-- ── Tasks section ──────────────────────────────────────── -->
+      <div id="section-tasks" class="section">
+        <div class="page-header">
+          <div class="page-title">My <span>Tasks</span></div>
+          <button class="btn btn-primary" id="new-task-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            New Task
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value" id="stat-total">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">To Do</div>
+            <div class="stat-value todo" id="stat-todo">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value inprog" id="stat-inprog">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Done</div>
+            <div class="stat-value done" id="stat-done">0</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+          <select class="filter-select" id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+          <select class="filter-select" id="filter-priority">
+            <option value="">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <!-- Grid -->
+        <div class="tasks-grid" id="tasks-grid"></div>
+      </div>
+
+      <!-- ── Users section (admin) ──────────────────────────────── -->
+      <div id="section-users" class="section">
+        <div class="page-header">
+          <div class="page-title">Manage <span>Users</span></div>
+          <span style="color:var(--muted);font-size:13px">Total: <strong id="stat-users">—</strong></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Create Task Modal ──────────────────────────────────────────── -->
+<div class="modal-backdrop" id="create-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Task</div>
+      <button class="modal-close" id="create-close">×</button>
+    </div>
+    <form id="create-form">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" name="title" placeholder="What needs to be done?" required maxlength="200" />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" placeholder="Optional details…"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group">
+          <label>Priority</label>
+          <select name="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status">
+            <option value="todo" selected>To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" name="due_date" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="create-cancel" onclick="document.getElementById('create-modal').classList.remove('open')">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="width:auto">Create Task</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Edit Task Modal ────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Task</div>
+      <button class="modal-close" id="edit-close">×</button>
+    </div>
+    <form id="edit-form">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" name="title" required maxlength="200" />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group">
+          <label>Priority</label>
+          <select name="priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status">
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" name="due_date" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('edit-modal').classList.remove('open')">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="width:auto">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
